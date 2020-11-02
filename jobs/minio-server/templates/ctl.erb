@@ -44,6 +44,35 @@ rm -f ${CONFIG_DIR}/certs/private.key
 rm -f ${CONFIG_DIR}/certs/CAs/ca.crt
 <% end %>
 
+<% if_p('kes.endpoint') do |prop| %>
+export MINIO_KMS_KES_ENDPOINT=<%= prop -%>
+<% end %>
+
+<% if_p('kes.ca_cert') do %>
+if [ ! -d "${CONFIG_DIR}/certs/CAs/" ]; then
+  mkdir -p ${CONFIG_DIR}/certs/CAs/
+fi
+cp /var/vcap/jobs/minio-server/config/kes-ca.crt ${CONFIG_DIR}/certs/CAs/
+
+export MINIO_KMS_KES_CA_PATH=${CONFIG_DIR}/certs/CAs/kes-ca.crt
+<% else %>
+rm -f ${CONFIG_DIR}/certs/CAs/kes-ca.crt
+<% end %>
+
+<% if_p('kes.root_identity_cert', 'kes.root_identity_key') do %>
+if [ ! -d "${CONFIG_DIR}/certs" ]; then
+  mkdir ${CONFIG_DIR}/certs
+fi
+cp /var/vcap/jobs/minio-server/config/root.crt ${CONFIG_DIR}/certs
+cp /var/vcap/jobs/minio-server/config/root.key ${CONFIG_DIR}/certs
+
+export MINIO_KMS_KES_KEY_FILE=${CONFIG_DIR}/certs/root.key
+export MINIO_KMS_KES_CERT_FILE=${CONFIG_DIR}/certs/root.crt
+<% else %>
+rm -f ${CONFIG_DIR}/certs/root.key
+rm -f ${CONFIG_DIR}/certs/root.crt
+<% end %>
+
 <% nodes = nil %>
 <% if_p('dns_alias') do |dns_alias|
   nodes = link('minio-server').instances.map { |instance| "#{protocol}://#{instance.id}.#{dns_alias}${DATA_DIR}/" }
