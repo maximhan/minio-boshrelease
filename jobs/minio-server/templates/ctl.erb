@@ -55,7 +55,8 @@ fi
 cp /var/vcap/jobs/minio-server/config/kes-ca.crt ${CONFIG_DIR}/certs/CAs/
 
 export MINIO_KMS_KES_CA_PATH=${CONFIG_DIR}/certs/CAs/kes-ca.crt
-<% else %>
+<% end.else do %>
+export MINIO_KMS_KES_CA_PATH=""
 rm -f ${CONFIG_DIR}/certs/CAs/kes-ca.crt
 <% end %>
 
@@ -68,7 +69,7 @@ cp /var/vcap/jobs/minio-server/config/root.key ${CONFIG_DIR}/certs
 
 export MINIO_KMS_KES_KEY_FILE=${CONFIG_DIR}/certs/root.key
 export MINIO_KMS_KES_CERT_FILE=${CONFIG_DIR}/certs/root.crt
-<% else %>
+<% end.else do %>
 rm -f ${CONFIG_DIR}/certs/root.key
 rm -f ${CONFIG_DIR}/certs/root.crt
 <% end %>
